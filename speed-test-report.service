@@ -1,0 +1,14 @@
+[Unit]
+Description=Speed-Test-Report
+After=network.target
+
+[Service]
+ExecStart=/home/pi/speed-test-report.sh
+WorkingDirectory=/home/pi/
+StandardOutput=inherit
+StandardError=inherit
+User=pi
+Environment=URL={{.URL}}
+
+[Install]
+WantedBy=multi-user.target
