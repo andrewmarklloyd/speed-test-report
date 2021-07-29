@@ -9,6 +9,7 @@ StandardOutput=inherit
 StandardError=inherit
 User=pi
 Environment=URL={{.URL}}
+Environment=TOKEN={{.TOKEN}}
 
 [Install]
 WantedBy=multi-user.target
