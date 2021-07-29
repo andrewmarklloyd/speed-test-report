@@ -1,8 +1,17 @@
 #!/bin/bash
 
+if ! command -v speedtest &> /dev/null; then
+  curl -s -O https://install.speedtest.net/app/cli/ookla-speedtest-1.0.0-arm-linux.tgz
+  tar zxf ookla-speedtest-1.0.0-arm-linux.tgz
+  sudo mv speedtest /usr/local/bin/speedtest
+  rm speedtest.*
+  rm ookla-speedtest-1.0.0-arm-linux.tgz
+fi
 
-# Download speedtest binary for arm
-# https://install.speedtest.net/app/cli/ookla-speedtest-1.0.0-arm-linux.tgz
+if ! command -v jq &> /dev/null; then
+  sudo apt-get update
+  sudo apt-get install jq -y
+fi
 
 if [[ -z ${URL} || -z ${TOKEN} ]]; then
   echo "URL and TOKEN environment variables must be set"
@@ -10,9 +19,9 @@ if [[ -z ${URL} || -z ${TOKEN} ]]; then
 fi
 
 speed_test_report() {
-  result=$(speedtest)
-  down=$(echo "${result}" | grep Download | awk '{print $3}')
-  up=$(echo "${result}" | grep Upload | awk '{print $3}')
+  result=$(speedtest --format=json-pretty --progress=no --accept-license --accept-gdp)
+  down=$(echo "${result}" | jq -r '.download.bytes')
+  up=$(echo "${result}" | jq -r '.upload.bytes')
   curl -s -H 'Content-Type: application/json' -d "{\"timestamp\":\"$(date +%s)\", \"download\":\"${down}\", \"upload\":\"${up}\", \"token\":\"${TOKEN}\"}" -L "${URL}"
 }
 
